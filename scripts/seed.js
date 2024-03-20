@@ -4,7 +4,7 @@ const {
   customers,
   revenue,
   users,
-} = require('../app/lib/placeholder-data.js');
+} = require('../app/lib/placeholder-data');
 const bcrypt = require('bcrypt');
 
 async function seedUsers(client) {
@@ -25,14 +25,16 @@ async function seedUsers(client) {
     // Insert data into the "users" table
     const insertedUsers = await Promise.all(
       users.map(async (user) => {
+				console.log("TCL: seedUsers -> user", user)
         const hashedPassword = await bcrypt.hash(user.password, 10);
         return client.sql`
         INSERT INTO users (id, name, email, password)
         VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword})
         ON CONFLICT (id) DO NOTHING;
-      `;
+        `;
       }),
-    );
+      );
+      console.log("TCL: seedUsers -> insertedUsers", insertedUsers)
 
     console.log(`Seeded ${insertedUsers.length} users`);
 
@@ -162,6 +164,7 @@ async function seedRevenue(client) {
 
 async function main() {
   const client = await db.connect();
+	console.log("TCL: main -> client", client)
 
   await seedUsers(client);
   await seedCustomers(client);
